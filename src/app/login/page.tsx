@@ -28,8 +28,7 @@ export default async function LoginPage({
       profile?.name &&
         profile.language_from &&
         profile.language_to &&
-        profile.city &&
-        profile.profession,
+      profile.city,
     );
 
     redirect(onboardingComplete ? "/dashboard" : "/onboarding");

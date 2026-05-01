@@ -5,8 +5,24 @@ import { NextResponse } from "next/server";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+function resolvePublicOrigin(request: Request): string {
+  const url = new URL(request.url);
+  const proto = request.headers.get("x-forwarded-proto");
+  const host = request.headers.get("x-forwarded-host") ?? request.headers.get("host");
+
+  if (proto && host) {
+    return `${proto}://${host}`;
+  }
+  if (host) {
+    // Fallback when proxy doesn't send x-forwarded-proto.
+    return `${url.protocol}//${host}`;
+  }
+  return url.origin;
+}
+
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
+  const { searchParams } = new URL(request.url);
+  const origin = resolvePublicOrigin(request);
   const code = searchParams.get("code");
   const rawNext = searchParams.get("next");
 

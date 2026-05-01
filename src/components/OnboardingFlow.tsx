@@ -29,7 +29,9 @@ export function OnboardingFlow() {
     if (step === 1) return nativeLanguage.length > 0;
     if (step === 2) return targetLanguage.length > 0;
     if (step === 3) return city.trim().length > 0;
-    return role.length > 0;
+    // Profession is optional for launch; users can complete onboarding
+    // even if none of the listed roles match them yet.
+    return true;
   }, [city, name, nativeLanguage, role, step, targetLanguage]);
 
   useEffect(() => {
@@ -143,8 +145,12 @@ export function OnboardingFlow() {
         ) : null}
 
         {step === 4 ? (
-          <StepBlock title="What is your profession?">
+          <StepBlock title="What is your profession? (optional)">
             <OptionGrid options={ROLE_OPTIONS} value={role} onSelect={setRole} />
+            <p className="mt-3 text-xs text-[#666666]">
+              Don&apos;t see your profession? Skip for now - more professions are coming
+              soon.
+            </p>
           </StepBlock>
         ) : null}
 

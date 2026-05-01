@@ -27,8 +27,7 @@ export default async function Home() {
     profile?.name &&
       profile.language_from &&
       profile.language_to &&
-      profile.city &&
-      profile.profession,
+      profile.city,
   );
 
   if (!onboardingComplete) {
