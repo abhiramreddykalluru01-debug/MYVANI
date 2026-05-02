@@ -37,61 +37,82 @@ export default async function LoginPage({
   const sp = await searchParams;
 
   return (
-    <div className="flex min-h-full flex-col items-center justify-center px-6 py-10">
+    <div className="flex min-h-full flex-col bg-[#F5F5F5]">
 
-      {/* Pain statement — above the card */}
-      <div className="mb-6 w-full max-w-sm">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#999999] text-center">
-          VANI
+      {/* Top section — stark white card with bold editorial headline */}
+      <div className="mx-4 mt-10 rounded-3xl bg-black px-6 pt-10 pb-8 shadow-[0_20px_60px_rgba(0,0,0,0.25)]">
+        {/* tiny label */}
+        <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-white/30">
+          Survival · Language · India
         </p>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-black text-center leading-tight">
-          You moved to a new city.<br />
-          No one speaks your language.
+
+        {/* Big statement */}
+        <h1 className="mt-4 text-[2.1rem] font-semibold leading-[1.15] tracking-tight text-white">
+          New city.<br />Wrong language.<br />
+          <span className="text-white/40">Now what?</span>
         </h1>
-        <p className="mt-3 text-sm text-[#555555] text-center leading-relaxed">
-          Auto driver. Landlord. Doctor. Shopkeeper.<br />
-          Every conversation feels like a wall.
+
+        {/* Ticker strip */}
+        <div className="mt-6 flex gap-2 overflow-hidden">
+          {["Auto driver", "Landlord", "Doctor", "Police", "Shopkeeper"].map((w) => (
+            <span
+              key={w}
+              className="shrink-0 rounded-full border border-white/15 px-3 py-1 text-[11px] font-medium text-white/50"
+            >
+              {w}
+            </span>
+          ))}
+        </div>
+
+        {/* Answer line */}
+        <p className="mt-5 text-sm leading-relaxed text-white/60">
+          VANI gives you the exact phrase you need — right now. No lessons. No apps to learn. Just speak.
         </p>
       </div>
 
-      {/* 3 survival proof points */}
-      <div className="mb-6 w-full max-w-sm flex flex-col gap-2">
+      {/* 3 feature rows — floating white pills */}
+      <div className="mx-4 mt-4 flex flex-col gap-3">
         {[
-          { icon: "⚡", text: "Say the right phrase in seconds — not after a 3-month course" },
-          { icon: "🗣️", text: "Type anything. Hear it instantly in Kannada, Hindi or Telugu" },
-          { icon: "🆘", text: "Emergency phrases always one tap away" },
-        ].map(({ icon, text }) => (
+          { num: "01", title: "Phrases for every situation", desc: "Work · Emergency · Daily life" },
+          { num: "02", title: "Type anything, hear it spoken", desc: "Powered by AI · In seconds" },
+          { num: "03", title: "Emergency help, one tap", desc: "Police · Hospital · SOS" },
+        ].map(({ num, title, desc }) => (
           <div
-            key={text}
-            className="flex items-start gap-3 rounded-xl border border-black bg-white px-4 py-3 shadow-[0_2px_8px_rgba(0,0,0,0.05)]"
+            key={num}
+            className="flex items-center gap-4 rounded-2xl bg-white px-5 py-4 shadow-[0_2px_12px_rgba(0,0,0,0.06)]"
           >
-            <span className="text-lg leading-none">{icon}</span>
-            <p className="text-sm text-black leading-snug">{text}</p>
+            <span className="text-[11px] font-bold text-[#CCCCCC]">{num}</span>
+            <div className="h-8 w-px bg-[#EBEBEB]" />
+            <div>
+              <p className="text-sm font-semibold text-black">{title}</p>
+              <p className="text-[11px] text-[#AAAAAA]">{desc}</p>
+            </div>
           </div>
         ))}
       </div>
 
-      {/* Login card */}
-      <div className="w-full max-w-sm rounded-2xl border border-black bg-white p-6 shadow-[0_6px_18px_rgba(0,0,0,0.07)]">
-        <p className="text-center text-sm font-semibold text-black">
-          Start surviving in any city
+      {/* Bottom CTA */}
+      <div className="mx-4 mt-5 rounded-3xl bg-white px-6 py-6 shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
+        <p className="text-base font-semibold text-black">
+          Start speaking today
         </p>
-        <p className="mt-1 text-center text-xs text-[#888888]">
-          Free to use · No course · Just phrases that work
+        <p className="mt-0.5 text-xs text-[#AAAAAA]">
+          Free · Kannada · Hindi · Telugu
         </p>
         {sp.error ? (
-          <p className="mt-3 text-center text-sm text-red-600">
+          <p className="mt-3 text-sm text-red-600">
             Could not complete sign-in. Try again.
           </p>
         ) : null}
-        <div className="mt-5">
+        <div className="mt-4">
           <GoogleSignInButton />
         </div>
       </div>
 
-      <p className="mt-5 text-center text-xs text-[#999999]">
+      <p className="mt-5 pb-8 text-center text-[11px] text-[#BBBBBB]">
         Built for India&apos;s migrants, travelers &amp; workers.
       </p>
+
     </div>
   );
 }
