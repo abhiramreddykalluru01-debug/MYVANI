@@ -107,6 +107,9 @@ export default async function LoginPage({
         <div className="mt-4">
           <GoogleSignInButton />
         </div>
+        <p className="mt-3 text-center text-[11px] text-[#9A9A9A]">
+          Secure sign-in powered by Supabase + Google.
+        </p>
       </div>
 
       <p className="mt-5 pb-8 text-center text-[11px] text-[#BBBBBB]">
