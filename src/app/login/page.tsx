@@ -1,6 +1,7 @@
 import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 import { createClient } from "@/lib/supabase/server";
 import type { UserRow } from "@/types/db";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export default async function LoginPage({
@@ -109,6 +110,17 @@ export default async function LoginPage({
         </div>
         <p className="mt-3 text-center text-[11px] text-[#9A9A9A]">
           Secure sign-in powered by Supabase + Google.
+        </p>
+        <p className="mt-2 text-center text-[11px] text-[#9A9A9A]">
+          By continuing, you agree to our{" "}
+          <Link href="/terms" className="underline">
+            Terms
+          </Link>{" "}
+          and{" "}
+          <Link href="/privacy" className="underline">
+            Privacy Policy
+          </Link>
+          .
         </p>
       </div>
 
