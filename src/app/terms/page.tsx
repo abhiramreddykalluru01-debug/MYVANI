@@ -96,8 +96,8 @@ export default function TermsPage() {
         <h2 className="text-lg font-semibold">10. Contact</h2>
         <p>
           Questions about these Terms can be sent to:{" "}
-          <a className="underline" href="mailto:hello@myvani.co.in">
-            hello@myvani.co.in
+          <a className="underline" href="mailto:abhiramreddykalluru01@gmail.com">
+            abhiramreddykalluru01@gmail.com
           </a>
         </p>
       </section>
