@@ -4,6 +4,8 @@ import { NextResponse, type NextRequest } from "next/server";
 // Pages that should be reachable without a Supabase session.
 const PUBLIC_PATH_PREFIXES = [
   "/login",
+  "/privacy",
+  "/terms",
   "/auth",
   "/api/auth",
   "/_next",

@@ -49,8 +49,8 @@ export default async function LoginPage({
 
         {/* Big statement */}
         <h1 className="mt-4 text-[2.1rem] font-semibold leading-[1.15] tracking-tight text-white">
-          New city.<br />Wrong language.<br />
-          <span className="text-white/40">Now what?</span>
+          New place.<br />New people.<br />
+          <span className="text-white/40">New language.</span>
         </h1>
 
         {/* Ticker strip */}
