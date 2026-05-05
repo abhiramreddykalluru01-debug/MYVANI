@@ -42,8 +42,11 @@ export default async function LoginPage({
 
       {/* Top section — stark white card with bold editorial headline */}
       <div className="mx-4 mt-10 rounded-3xl bg-black px-6 pt-10 pb-8 shadow-[0_20px_60px_rgba(0,0,0,0.25)]">
+        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white">
+          MyVani
+        </p>
         {/* tiny label */}
-        <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-white/30">
+        <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-white/30">
           Survival · Language · India
         </p>
 
