@@ -6,6 +6,7 @@ import {
 } from "@/lib/data/phrases";
 import { getCurrentLanguageCode } from "@/lib/auth/language";
 import { createClient } from "@/lib/supabase/server";
+import { GuestLanguageStrip } from "@/components/GuestLanguageStrip";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -25,20 +26,23 @@ export default async function QuickHelpPage() {
   ]);
 
   return (
-    <QuickHelpView
-      categories={categories.map((c) => ({
-        id: c.id,
-        slug: c.slug,
-        title: c.title,
-      }))}
-      phrases={phrases.map((p) => ({
-        id: p.id,
-        english_text: p.english_text,
-        phonetic_text: p.phonetic_text,
-        category_slug: p.category.slug,
-        has_audio: Boolean(p.audio_url),
-      }))}
-      favoritedIds={[...favIds]}
-    />
+    <>
+      <GuestLanguageStrip />
+      <QuickHelpView
+        categories={categories.map((c) => ({
+          id: c.id,
+          slug: c.slug,
+          title: c.title,
+        }))}
+        phrases={phrases.map((p) => ({
+          id: p.id,
+          english_text: p.english_text,
+          phonetic_text: p.phonetic_text,
+          category_slug: p.category.slug,
+          has_audio: Boolean(p.audio_url),
+        }))}
+        favoritedIds={[...favIds]}
+      />
+    </>
   );
 }

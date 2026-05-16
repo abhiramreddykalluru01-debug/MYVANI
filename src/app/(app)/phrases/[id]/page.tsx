@@ -67,6 +67,8 @@ export default async function PhraseDetailPage({ params }: { params: Params }) {
     return a.sort_order - b.sort_order;
   });
 
+  const hasReplyAudio = orderedReplies.some((r) => r.audio_url);
+
   return (
     <div className="flex flex-col gap-6 pb-6">
       {/* Track recent usage on mount (client-side fire and forget) */}
@@ -97,6 +99,10 @@ export default async function PhraseDetailPage({ params }: { params: Params }) {
         <div className="mt-6">
           {phrase.audio_url ? (
             <AudioPlayer src={phrase.audio_url} />
+          ) : hasReplyAudio ? (
+            <p className="text-sm text-[#666666]">
+              No audio for this main line — use the player on each reply below.
+            </p>
           ) : (
             <button
               type="button"
@@ -113,6 +119,11 @@ export default async function PhraseDetailPage({ params }: { params: Params }) {
         <h2 className="text-sm font-semibold uppercase tracking-wide text-[#666666]">
           {phrase.answer_mode === "yes_no" ? "Yes / No replies" : "Replies"}
         </h2>
+        {orderedReplies.length > 0 ? (
+          <p className="mt-1 text-xs text-[#999999]">
+            Tap a reply row to expand audio (when available).
+          </p>
+        ) : null}
         {orderedReplies.length === 0 ? (
           <p className="mt-3 text-sm text-[#666666]">
             No replies for this phrase yet.

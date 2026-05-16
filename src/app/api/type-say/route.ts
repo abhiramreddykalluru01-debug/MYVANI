@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createHash } from "node:crypto";
 import { createClient } from "@/lib/supabase/server";
+import { getUserEntitlement } from "@/lib/auth/entitlement";
 import { resolveLanguageCode } from "@/lib/constants/languages";
 import { geminiPhonetic, GeminiError } from "@/lib/gemini/client";
 import {
@@ -58,6 +59,13 @@ const PHONETIC_LANG_BY_SARVAM: Record<
 };
 
 type PhoneticSource = "gemini" | "sarvam";
+type ReplyAccess = "granted" | "locked";
+
+type ExpectedReply = {
+  english: string;
+  native: string;
+  phonetic: string;
+};
 
 type TypeSayPayload = {
   phonetic: string;
@@ -65,8 +73,56 @@ type TypeSayPayload = {
   audioUrl: string | null;
   targetLanguage: SarvamLanguage;
   phoneticSource: PhoneticSource;
+  replyAccess: ReplyAccess;
+  expectedReplies: ExpectedReply[];
+  upgradeMessage?: string;
   cached?: boolean;
 };
+
+const REPLY_TEMPLATES_QUESTION = [
+  "Yes, I understand.",
+  "No, please explain once more.",
+  "Please wait, I am checking.",
+] as const;
+
+const REPLY_TEMPLATES_DEFAULT = [
+  "Okay, understood.",
+  "Please repeat slowly.",
+  "I can help with that.",
+] as const;
+
+function pickReplyTemplates(input: string): readonly string[] {
+  return input.trim().endsWith("?")
+    ? REPLY_TEMPLATES_QUESTION
+    : REPLY_TEMPLATES_DEFAULT;
+}
+
+async function buildExpectedReplies(
+  input: string,
+  targetLanguage: SarvamLanguage,
+): Promise<ExpectedReply[]> {
+  const templates = pickReplyTemplates(input);
+  const rows = await Promise.all(
+    templates.map(async (english) => {
+      const { translated } = await sarvamTranslate({
+        text: english,
+        sourceLanguage: "en-IN",
+        targetLanguage,
+      });
+      if (!translated) {
+        return null;
+      }
+      const { phonetic } = await resolvePhonetic(translated, targetLanguage);
+      return {
+        english,
+        native: translated,
+        phonetic,
+      } satisfies ExpectedReply;
+    }),
+  );
+
+  return rows.filter((v): v is ExpectedReply => Boolean(v));
+}
 
 function normalizeInput(raw: unknown): string | null {
   if (typeof raw !== "string") return null;
@@ -77,9 +133,10 @@ function normalizeInput(raw: unknown): string | null {
 }
 
 function buildCacheKey(input: string, lang: LanguageCode): string {
-  // Stable hash of normalized input + language.
+  // Bump prefix when phonetic rules/prompts change so stale rows are not
+  // served forever (e.g. bad Kannada romanization cached earlier).
   return createHash("sha256")
-    .update(`${lang}::${input.toLowerCase()}`)
+    .update(`phonetic_v2::${lang}::${input.toLowerCase()}`)
     .digest("hex");
 }
 
@@ -173,6 +230,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
+  // Entitlement is read once, here, and used for both the cache-hit path
+  // and the fresh-generation path below. DB → env-allowlist fallback is
+  // handled inside `getUserEntitlement`.
+  const entitlement = await getUserEntitlement(user.id);
+  const repliesUnlocked = entitlement.repliesUnlocked;
+
   const { data: profile } = await supabase
     .from("users")
     .select("language_code, language_to")
@@ -215,12 +278,29 @@ export async function POST(req: Request) {
         }
       });
 
+    let expectedReplies: ExpectedReply[] = [];
+    if (repliesUnlocked) {
+      try {
+        expectedReplies = await buildExpectedReplies(input, targetLanguage);
+      } catch (err) {
+        console.warn(
+          "[/api/type-say] expected replies generation failed:",
+          (err as Error).message,
+        );
+      }
+    }
+
     const payload: TypeSayPayload = {
       phonetic: cached.phonetic_text as string,
       native: cached.native_text as string,
       audioUrl: (cached.audio_url as string | null) ?? null,
       targetLanguage,
       phoneticSource: cached.phonetic_source as PhoneticSource,
+      replyAccess: repliesUnlocked ? "granted" : "locked",
+      expectedReplies,
+      upgradeMessage: repliesUnlocked
+        ? undefined
+        : "Expected replies are available on paid plans.",
       cached: true,
     };
     return NextResponse.json(payload);
@@ -328,7 +408,24 @@ export async function POST(req: Request) {
       audioUrl,
       targetLanguage,
       phoneticSource: phoneticRes.source,
+      replyAccess: repliesUnlocked ? "granted" : "locked",
+      expectedReplies: [],
+      upgradeMessage: repliesUnlocked
+        ? undefined
+        : "Expected replies are available on paid plans.",
     };
+
+    if (repliesUnlocked) {
+      try {
+        payload.expectedReplies = await buildExpectedReplies(input, targetLanguage);
+      } catch (err) {
+        console.warn(
+          "[/api/type-say] expected replies generation failed:",
+          (err as Error).message,
+        );
+      }
+    }
+
     return NextResponse.json(payload);
   } catch (err) {
     const status =

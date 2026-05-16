@@ -33,7 +33,7 @@ function apiKey(): string {
 
 export type PhoneticLanguage = "Kannada" | "Hindi" | "Tamil" | "Telugu";
 
-const SYSTEM_INSTRUCTION = `You are a phonetic converter for an Indian language learning app.
+const BASE_RULES = `You are a phonetic converter for an Indian language learning app.
 
 Task:
 Convert the given native-script sentence into easy-to-read Roman phonetics for Indian English speakers.
@@ -43,13 +43,34 @@ Rules:
 2) JSON schema:
    {"phonetic_text":"<string>"}
 3) Keep phonetic_text concise, natural, and speakable.
-4) Use syllable-friendly romanization (example style: "na-nage sa-ha-ya be-ku").
-5) Do NOT include IPA symbols.
-6) Do NOT translate meaning.
-7) Do NOT add punctuation that is not needed for speaking.
-8) Preserve politeness particles and emphasis naturally.
+4) Use syllable-friendly romanization: put ONE hyphen "-" between syllables inside a word (example: "na-na-ge sa-ha-ya be-ku").
+5) Between spoken words, put a clear pause marker: space, two hyphens, space " -- " (example: "na-na-ge -- sa-ha-ya -- be-ku").
+6) Do NOT include IPA symbols.
+7) Do NOT translate meaning; only romanize what is written in the native line.
+8) Do NOT add commas, quotes, or question marks unless they help reading; prefer hyphens only.
 9) If uncertain, return best-effort phonetics; never return empty text.
 10) Maximum length: 220 characters.`;
+
+const LANGUAGE_RULES: Record<PhoneticLanguage, string> = {
+  Kannada: `Language-specific (Kannada — mandatory):
+- The native text is in Kannada script. Romanize as standard Kannada-to-English (common Bangalore / Karnataka learner style).
+- NEVER use Hindi/Urdu spellings for Kannada words. Wrong examples to avoid: "kitni", "kitna", "kyaa/kya", "idhar/udhar", "yeh", "dikhao", "bhav" for Kannada equivalents — use Kannada pronunciations instead (e.g. ಎಷ್ಟು → "yeshtu", ಇದು → "idu", ಏನು → "enu", ನೀವು → "neevu", ದಯವಿಟ್ಟು → "daya-vit-tu").
+- Loanwords that stay in Latin in the native line (e.g. airport, fare) may stay in Latin as in the source.
+- Match the Kannada sentence sound-for-sound; do not drift into another Indian language.`,
+
+  Hindi: `Language-specific (Hindi):
+- Use clear Hindi-to-Roman style for Devanagari; keep syllable hyphens and " -- " between words as above.`,
+
+  Tamil: `Language-specific (Tamil):
+- Use Tamil-to-Roman style for Tamil script; do not use Hindi or Kannada spelling habits.`,
+
+  Telugu: `Language-specific (Telugu):
+- Use Telugu-to-Roman style for Telugu script; do not use Hindi or Kannada spelling habits.`,
+};
+
+function systemInstructionFor(lang: PhoneticLanguage): string {
+  return `${BASE_RULES}\n\n${LANGUAGE_RULES[lang]}`;
+}
 
 type GeminiResponse = {
   candidates?: {
@@ -74,7 +95,7 @@ export async function geminiPhonetic(params: {
   const body = {
     systemInstruction: {
       role: "system",
-      parts: [{ text: SYSTEM_INSTRUCTION }],
+      parts: [{ text: systemInstructionFor(params.targetLanguage) }],
     },
     contents: [
       {
@@ -87,7 +108,7 @@ export async function geminiPhonetic(params: {
       },
     ],
     generationConfig: {
-      temperature: 0.2,
+      temperature: 0.12,
       topP: 0.8,
       maxOutputTokens: 256,
       responseMimeType: "application/json",

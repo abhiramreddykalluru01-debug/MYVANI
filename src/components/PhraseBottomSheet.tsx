@@ -189,6 +189,8 @@ function PhraseContent({
   onPlayAudio: (url: string) => Promise<void>;
   onClose: () => void;
 }) {
+  const hasReplyAudio = data.replies.some((r) => r.audio_url);
+
   return (
     <div className="flex flex-col gap-5 pt-2">
       {/* Header row: close + favorite */}
@@ -215,6 +217,13 @@ function PhraseContent({
           </button>
         ) : null}
       </div>
+
+      {data.replies.length > 0 ? (
+        <p className="text-xs text-[#666666]">
+          Scroll down for <span className="font-medium text-black">replies</span>
+          {hasReplyAudio ? " — tap Play on a line to hear audio." : "."}
+        </p>
+      ) : null}
 
       {/* Main phrase card */}
       <div className="rounded-2xl border border-black bg-white p-5 shadow-[0_6px_18px_rgba(0,0,0,0.06)]">
@@ -248,6 +257,12 @@ function PhraseContent({
                 Slower
               </button>
             </div>
+          ) : hasReplyAudio ? (
+            <p className="text-xs leading-relaxed text-[#555555]">
+              No audio for this main line — use{" "}
+              <span className="font-semibold text-black">Play</span> on each reply
+              below.
+            </p>
           ) : (
             <span className="rounded-lg border border-black bg-[#F5F5F5] px-3 py-1.5 text-xs font-medium text-[#555555]">
               Audio soon

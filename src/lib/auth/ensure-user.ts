@@ -1,13 +1,20 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 
-export async function ensureUserProfile() {
-  const supabase = await createClient();
+/**
+ * Ensure `public.users` has a row for the signed-in user.
+ * Pass the same `supabase` instance used in `/auth/callback` after
+ * `exchangeCodeForSession` so reads see the session cookies that were
+ * written onto the redirect response.
+ */
+export async function ensureUserProfile(supabase?: SupabaseClient) {
+  const client = supabase ?? (await createClient());
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } = await client.auth.getUser();
   if (!user) return { user: null as null };
 
-  const { data: existing } = await supabase
+  const { data: existing } = await client
     .from("users")
     .select("id")
     .eq("id", user.id)
@@ -22,7 +29,7 @@ export async function ensureUserProfile() {
     user.email?.split("@")[0] ??
     "User";
 
-  await supabase.from("users").insert({
+  await client.from("users").insert({
     id: user.id,
     email: user.email ?? "",
     name,

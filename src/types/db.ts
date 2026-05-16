@@ -102,3 +102,17 @@ export type FeedbackRow = {
   contact: string | null;
   created_at: string;
 };
+
+// ── Entitlements / Plans ─────────────────────────────────────────────────
+
+export type VaniPlan = "free" | "survive" | "confident" | "tourist";
+
+export type UserEntitlementRow = {
+  user_id: string;
+  plan: VaniPlan;
+  replies_unlocked: boolean;
+  valid_until: string | null;
+  source: string | null;
+  notes: string | null;
+  updated_at: string;
+};

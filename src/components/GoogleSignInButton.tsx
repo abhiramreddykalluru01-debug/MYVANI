@@ -8,12 +8,23 @@ export function GoogleSignInButton() {
     const supabase = createClient();
     const origin = window.location.origin;
     track("auth_signin_started", { provider: "google" });
-    await supabase.auth.signInWithOAuth({
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
         redirectTo: `${origin}/auth/callback`,
       },
     });
+    if (error) {
+      track("auth_signin_failed", {
+        provider: "google",
+        message: error.message,
+      });
+      console.error("signInWithOAuth", error);
+      return;
+    }
+    if (data.url) {
+      window.location.assign(data.url);
+    }
   }
 
   return (

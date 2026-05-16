@@ -1,12 +1,12 @@
-import { createClient } from "@/lib/supabase/server";
+import { createServerClient } from "@supabase/ssr";
+import { type NextRequest, NextResponse } from "next/server";
 import { ensureUserProfile } from "@/lib/auth/ensure-user";
-import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-function resolvePublicOrigin(request: Request): string {
-  const url = new URL(request.url);
+function resolvePublicOrigin(request: NextRequest): string {
+  const url = request.nextUrl;
   const proto = request.headers.get("x-forwarded-proto");
   const host = request.headers.get("x-forwarded-host") ?? request.headers.get("host");
 
@@ -14,40 +14,66 @@ function resolvePublicOrigin(request: Request): string {
     return `${proto}://${host}`;
   }
   if (host) {
-    // Fallback when proxy doesn't send x-forwarded-proto.
     return `${url.protocol}//${host}`;
   }
   return url.origin;
 }
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const origin = resolvePublicOrigin(request);
-  const code = searchParams.get("code");
-  const rawNext = searchParams.get("next");
+/**
+ * Google OAuth return handler.
+ *
+ * Critical: session cookies from `exchangeCodeForSession` MUST be written
+ * onto the same `NextResponse` we return (see setAll → response.cookies).
+ * Using only `cookies()` from `next/headers` in a Route Handler often does
+ * not attach auth cookies to the redirect — users appear "signed out" right
+ * after Google.
+ */
+export async function GET(request: NextRequest) {
+  const url = request.nextUrl;
+  const code = url.searchParams.get("code");
+  const rawNext = url.searchParams.get("next");
 
-  // Guard against open-redirect: only allow same-origin relative paths.
+  const origin = resolvePublicOrigin(request);
+
   const safeNext =
     rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//")
       ? rawNext
       : "/";
 
-  if (code) {
-    const supabase = await createClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) {
-      // Make sure the public.users profile row exists. First-time Google
-      // sign-ins land here with only an auth.users row; the rest of the app
-      // assumes a profile row, so create it now (idempotent).
-      try {
-        await ensureUserProfile();
-      } catch {
-        // Best-effort; UI will still work with a missing row, OnboardingFlow
-        // / updateProfile will create/upsert later.
-      }
-      return NextResponse.redirect(`${origin}${safeNext}`);
-    }
+  if (!code) {
+    return NextResponse.redirect(`${origin}/login?error=auth`);
   }
 
-  return NextResponse.redirect(`${origin}/login?error=auth`);
+  const response = NextResponse.redirect(`${origin}${safeNext}`);
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            response.cookies.set(name, value, options);
+          });
+        },
+      },
+    },
+  );
+
+  const { error } = await supabase.auth.exchangeCodeForSession(code);
+  if (error) {
+    console.warn("[auth/callback] exchangeCodeForSession:", error.message);
+    return NextResponse.redirect(`${origin}/login?error=auth`);
+  }
+
+  try {
+    await ensureUserProfile(supabase);
+  } catch {
+    /* best-effort; onboarding can still create the row */
+  }
+
+  return response;
 }

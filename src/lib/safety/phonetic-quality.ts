@@ -17,6 +17,18 @@ export type PhoneticScore = {
 
 const GOOD_THRESHOLD = 0.6;
 
+/** Kannada Unicode block — used to apply Kannada-specific quality checks. */
+const KANNADA_SCRIPT = /[\u0C80-\u0CFF]/;
+
+/**
+ * Hindi-style romanization that often appears when the model drifts from
+ * Kannada; if the source is Kannada script, these are strong red flags.
+ */
+const HINDI_STYLE_LEAK = new RegExp(
+  String.raw`\b(kitni|kitna|kyaa|kya|itna|itni|idhar|udhar|idrkha|yeh|vah|dikhao|dikhe|bhavle|bhav|mein|hum|aap|kripya)\b`,
+  "i",
+);
+
 export function scorePhonetic(
   phonetic: string,
   sourceText: string,
@@ -38,6 +50,11 @@ export function scorePhonetic(
     .split(/\s+/)
     .map((t) => t.replace(/[^a-z-]/g, ""))
     .filter(Boolean);
+
+  if (KANNADA_SCRIPT.test(sourceText) && HINDI_STYLE_LEAK.test(trimmed)) {
+    score -= 0.55;
+    reasons.push("Hindi-style romanization for Kannada source");
+  }
 
   // 1. Length sanity relative to source.
   const srcChars = sourceText.trim().length;
@@ -92,9 +109,10 @@ export function scorePhonetic(
     }
   }
 
-  // 5. Punctuation / dash spam.
-  const dashes = (trimmed.match(/-/g) ?? []).length;
-  if (tokens.length > 0 && dashes / Math.max(trimmed.length, 1) > 0.2) {
+  // 5. Punctuation / dash spam (treat " -- " word pauses as one unit).
+  const dashDensitySource = trimmed.replace(/\s--\s/g, " ");
+  const dashes = (dashDensitySource.match(/-/g) ?? []).length;
+  if (tokens.length > 0 && dashes / Math.max(dashDensitySource.length, 1) > 0.22) {
     score -= 0.15;
     reasons.push("excessive dashes");
   }

@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { Suspense } from "react";
 import { AnalyticsProvider } from "@/components/AnalyticsProvider";
+import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 import "./globals.css";
 
 const inter = Inter({
@@ -10,8 +11,21 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "VANI",
-  description: "Learn phrases — fast, minimal, mobile-first.",
+  title: "VANI — Speak with confidence",
+  description:
+    "Phrases for everyday situations in Indian languages. Speak immediately.",
+  applicationName: "VANI",
+  appleWebApp: {
+    capable: true,
+    title: "VANI",
+    statusBarStyle: "black-translucent",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#000000",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
@@ -25,6 +39,7 @@ export default function RootLayout({
         <Suspense fallback={null}>
           <AnalyticsProvider />
         </Suspense>
+        <ServiceWorkerRegister />
         {children}
       </body>
     </html>

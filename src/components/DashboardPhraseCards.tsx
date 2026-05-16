@@ -35,6 +35,9 @@ export function DashboardPhraseCards({ phrases }: { phrases: PhraseMini[] }) {
             <p className="mt-1 text-lg font-semibold leading-tight text-black line-clamp-2">
               {p.phonetic_text}
             </p>
+            <p className="mt-2 text-[10px] font-medium text-[#888888]">
+              Tap for replies &amp; audio
+            </p>
           </button>
         ))}
       </div>

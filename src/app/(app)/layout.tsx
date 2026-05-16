@@ -1,4 +1,4 @@
-import { BottomNav } from "@/components/BottomNav";
+import { BottomNavClientOnly } from "@/components/BottomNavClientOnly";
 import { IdentifyUser } from "@/components/IdentifyUser";
 import { createClient } from "@/lib/supabase/server";
 import type { UserRow } from "@/types/db";
@@ -33,7 +33,7 @@ export default async function AppLayout({
         />
       ) : null}
       <div className="mx-auto w-full max-w-lg flex-1 px-4 pt-6">{children}</div>
-      <BottomNav />
+      <BottomNavClientOnly />
     </div>
   );
 }

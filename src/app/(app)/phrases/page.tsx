@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { UserRow } from "@/types/db";
 import { GeneralPhrasesView } from "@/components/GeneralPhrasesView";
 import { ProfessionalPhrasesView } from "@/components/ProfessionalPhrasesView";
+import { GuestLanguageStrip } from "@/components/GuestLanguageStrip";
 
 const PROFESSION_KEY_ALIASES: Record<string, string[]> = {
   "Software Engineer": [
@@ -61,21 +62,24 @@ export default async function PhrasesPage({
     ]);
 
     return (
-      <GeneralPhrasesView
-        categories={categories.map((c) => ({
-          id: c.id,
-          slug: c.slug,
-          title: c.title,
-        }))}
-        phrases={phrases.map((p) => ({
-          id: p.id,
-          english_text: p.english_text,
-          phonetic_text: p.phonetic_text,
-          category_slug: p.category.slug,
-          has_audio: Boolean(p.audio_url),
-        }))}
-        favoritedIds={[...favIds]}
-      />
+      <>
+        <GuestLanguageStrip />
+        <GeneralPhrasesView
+          categories={categories.map((c) => ({
+            id: c.id,
+            slug: c.slug,
+            title: c.title,
+          }))}
+          phrases={phrases.map((p) => ({
+            id: p.id,
+            english_text: p.english_text,
+            phonetic_text: p.phonetic_text,
+            category_slug: p.category.slug,
+            has_audio: Boolean(p.audio_url),
+          }))}
+          favoritedIds={[...favIds]}
+        />
+      </>
     );
   }
 
@@ -99,16 +103,19 @@ export default async function PhrasesPage({
   ]);
 
   return (
-    <ProfessionalPhrasesView
-      phrases={phrases.map((p) => ({
-        id: p.id,
-        english_text: p.english_text,
-        phonetic_text: p.phonetic_text,
-        has_audio: Boolean(p.audio_url),
-      }))}
-      hasProfession={Boolean(profession)}
-      profession={profession ?? null}
-      favoritedIds={[...favIds]}
-    />
+    <>
+      <GuestLanguageStrip />
+      <ProfessionalPhrasesView
+        phrases={phrases.map((p) => ({
+          id: p.id,
+          english_text: p.english_text,
+          phonetic_text: p.phonetic_text,
+          has_audio: Boolean(p.audio_url),
+        }))}
+        hasProfession={Boolean(profession)}
+        profession={profession ?? null}
+        favoritedIds={[...favIds]}
+      />
+    </>
   );
 }

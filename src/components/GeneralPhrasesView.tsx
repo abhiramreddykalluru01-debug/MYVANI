@@ -124,12 +124,13 @@ export function GeneralPhrasesView({ categories, phrases, favoritedIds = [] }: P
       </div>
 
       <ul className="flex flex-col gap-3">
-        {filtered.map((p) => (
+        {filtered.map((p, index) => (
           <li key={p.id}>
             <ExpandablePhraseCard
               phrase={p}
               isExpanded={expandedId === p.id}
               isFavorited={favSet.has(p.id)}
+              prefetchRank={index < 12 ? index : null}
               onToggle={() =>
                 setExpandedId((cur) => (cur === p.id ? null : p.id))
               }

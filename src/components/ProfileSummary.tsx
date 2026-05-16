@@ -51,14 +51,16 @@ export function ProfileSummary({
     }
   }, []);
 
+  // Server (initial) always wins when it has a value — localStorage is only
+  // used as fallback for fields the DB hasn't saved yet (e.g. mid-onboarding).
   const view = useMemo(
     () => ({
-      name: local?.name ?? initial.name,
+      name: initial.name ?? local?.name ?? null,
       email: initial.email,
-      language_from: local?.language_from ?? initial.language_from,
-      language_to: local?.language_to ?? initial.language_to,
-      city: local?.city ?? initial.city,
-      profession: local?.profession ?? initial.profession,
+      language_from: initial.language_from ?? local?.language_from ?? null,
+      language_to: initial.language_to ?? local?.language_to ?? null,
+      city: initial.city ?? local?.city ?? null,
+      profession: initial.profession ?? local?.profession ?? null,
     }),
     [initial, local],
   );

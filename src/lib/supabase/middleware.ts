@@ -2,19 +2,43 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 // Pages that should be reachable without a Supabase session.
-const PUBLIC_PATH_PREFIXES = [
+// Guest mode: browse phrases/practice/quick-help without signing in.
+// Locked routes (need auth): /type-say, /profile, /onboarding, /feedback,
+// /api/type-say, /actions/*.
+// Each entry is matched as either an exact path or `path` + `/` so that
+// `/iconography` does NOT match the `/icon` allow-listed prefix.
+const PUBLIC_PATHS: readonly string[] = [
   "/login",
   "/privacy",
   "/terms",
   "/auth",
   "/api/auth",
   "/_next",
-  "/favicon",
+  "/favicon.ico",
+  // PWA: manifest + icons + service worker must load without a session
+  // (install / Lighthouse / offline boot).
+  "/manifest.webmanifest",
+  "/icon",
+  "/apple-icon",
+  "/sw.js",
+  // Guest browse — no Supabase session required.
+  "/dashboard",
+  "/phrases",
+  "/quick-help",
+  "/practice",
+  "/situation",
+  "/api/phrases",
 ];
 
 function isPublicPath(pathname: string): boolean {
   if (pathname === "/") return true;
-  return PUBLIC_PATH_PREFIXES.some((p) => pathname.startsWith(p));
+  for (const p of PUBLIC_PATHS) {
+    if (pathname === p) return true;
+    if (pathname.startsWith(p + "/")) return true;
+  }
+  // `/_next/*` is the only assets prefix we need wildcard-style; everything
+  // else uses the strict `===` or `startsWith(p + "/")` rule above.
+  return false;
 }
 
 export async function updateSession(request: NextRequest) {

@@ -4,6 +4,7 @@ import { getVaLogoForLanguage } from "@/lib/branding/logo";
 import { listFavoritePhrases, listRecentPhrases } from "@/lib/data/phrases";
 import { getCurrentLanguageCode } from "@/lib/auth/language";
 import { DashboardPhraseCards } from "@/components/DashboardPhraseCards";
+import { GuestLanguagePicker } from "@/components/GuestLanguagePicker";
 import type { UserRow } from "@/types/db";
 
 export const dynamic = "force-dynamic";
@@ -19,8 +20,9 @@ export default async function DashboardPage() {
   let favorites: Awaited<ReturnType<typeof listFavoritePhrases>> = [];
   let recents: Awaited<ReturnType<typeof listRecentPhrases>> = [];
 
+  const languageCode = await getCurrentLanguageCode();
+
   if (user) {
-    const languageCode = await getCurrentLanguageCode();
     const [row, favs, recs] = await Promise.all([
       supabase
         .from("users")
@@ -41,9 +43,13 @@ export default async function DashboardPage() {
   return (
     <div className="flex flex-col gap-8 pb-6">
       <header>
-        <p className="text-sm font-medium text-[#666666]">{logoText}</p>
+        {user ? (
+          <p className="text-sm font-medium text-[#666666]">{logoText}</p>
+        ) : (
+          <GuestLanguagePicker currentCode={languageCode} />
+        )}
         <h1 className="mt-1 text-2xl font-semibold tracking-tight text-black">
-          Ready to speak
+          Moved to a new city?
         </h1>
       </header>
 
@@ -106,17 +112,7 @@ export default async function DashboardPage() {
           </span>
         </Link>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-xl border border-black bg-white px-3 py-2 shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
-            <p className="text-sm font-semibold text-black">Tourist phrases</p>
-            <p className="mt-0.5 text-xs text-[#666666]">Coming soon</p>
-          </div>
-          <div className="rounded-xl border border-black bg-white px-3 py-2 shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
-            <p className="text-sm font-semibold text-black">Situational phrases</p>
-            <p className="mt-0.5 text-xs text-[#666666]">Coming soon</p>
-          </div>
-        </div>
-      </section>
+              </section>
     </div>
   );
 }

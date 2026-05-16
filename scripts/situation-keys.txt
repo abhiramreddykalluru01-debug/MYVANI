@@ -1,0 +1,121 @@
+auto-banashankari|flat|t0|user|Anna, will you go to Banashankari?
+auto-banashankari|flat|t1|other:r0|Yes, come.
+auto-banashankari|flat|t1|other:r1|Which Banashankari — 1st stage or 2nd?
+auto-banashankari|flat|t1|other:r2|That side is jam now.
+auto-banashankari|flat|t2|user|Anna, how much?
+auto-banashankari|flat|t3|other:r0|One hundred rupees.
+auto-banashankari|flat|t3|other:r1|One fifty.
+auto-banashankari|flat|t3|other:r2|Two hundred.
+auto-banashankari|flat|t4|user|Okay, one fifty is fine. Please go.
+auto-banashankari|flat|t5|other:r0|Okay, sit.
+auto-banashankari|flat|t5|other:r1|Come quickly.
+hospital-visit|p1|t0|user|I need an appointment to see the doctor.
+hospital-visit|p1|t1|other:r0|OP or emergency?
+hospital-visit|p1|t1|other:r1|Which department — general medicine?
+hospital-visit|p1|t1|other:r2|First time here? Please fill this form.
+hospital-visit|p1|t2|user|I have had fever for two days. My phone number is …
+hospital-visit|p1|t3|other:r0|Write name, age, and problem clearly.
+hospital-visit|p1|t3|other:r1|Pay registration fee at that counter.
+hospital-visit|p1|t3|other:r2|Wait — we will call your token number.
+hospital-visit|p1|t4|user|Roughly how long is the wait?
+hospital-visit|p1|t5|other:r0|Around twenty to thirty minutes.
+hospital-visit|p1|t5|other:r1|Doctor is on rounds — a little delay.
+hospital-visit|p2|t0|user|Doctor, I have had fever and body ache for two days.
+hospital-visit|p2|t1|other:r0|Since when? Any cough or cold?
+hospital-visit|p2|t1|other:r1|Open your mouth — say aaah.
+hospital-visit|p2|t1|other:r2|Any medicine you are already taking?
+hospital-visit|p2|t2|user|I took paracetamol — a little better only.
+hospital-visit|p2|t3|other:r0|We will send you for a blood test.
+hospital-visit|p2|t3|other:r1|Take this prescription — after food, twice a day.
+hospital-visit|p2|t3|other:r2|Come back if fever is still high after three days.
+hospital-visit|p2|t4|user|Should I pay at billing first?
+hospital-visit|p2|t5|other:r0|Yes — pay there, then pharmacy or lab as written.
+hospital-visit|p2|t5|other:r1|Keep this slip with you.
+hospital-visit|p3|t0|user|I need to pay for consultation and the blood test.
+hospital-visit|p3|t1|other:r0|Show the doctor slip and your ID.
+hospital-visit|p3|t1|other:r1|Total five hundred rupees.
+hospital-visit|p3|t1|other:r2|Card, UPI, or cash?
+hospital-visit|p3|t2|user|I'll pay by UPI. Give me the bill.
+hospital-visit|p3|t3|other:r0|Scan this QR code.
+hospital-visit|p3|t3|other:r1|Take this receipt to the lab window.
+hospital-visit|p3|t4|user|Thank you.
+hospital-visit|p3|t5|other:r0|Welcome — next patient please.
+hospital-visit|p4|t0|user|Sister, give these medicines from the prescription.
+hospital-visit|p4|t1|other:r0|Wait — let me check all items.
+hospital-visit|p4|t1|other:r1|This tablet is out of stock — same salt substitute ok?
+hospital-visit|p4|t1|other:r2|Before food or after food — I will explain.
+hospital-visit|p4|t2|user|Substitute is fine if the doctor allows.
+hospital-visit|p4|t3|other:r0|Then take this strip — after food at night.
+hospital-visit|p4|t3|other:r1|Read the dose on the cover.
+hospital-visit|p4|t4|user|What is the total?
+hospital-visit|p4|t5|other:r0|Two hundred and eighty rupees.
+hospital-visit|p4|t5|other:r1|UPI is available here.
+hospital-visit|p4|t6|user|Paid. Thank you.
+hospital-visit|p4|t7|other:r0|Take care — get well soon.
+bus-conductor|flat|t0|user|Anna, I need to go to Banashankari.
+bus-conductor|flat|t1|other:r0|Which stop in Banashankari?
+bus-conductor|flat|t1|other:r1|Come inside — stand near the door.
+bus-conductor|flat|t1|other:r2|This bus goes that side — sit.
+bus-conductor|flat|t2|user|Metro station side is fine.
+bus-conductor|flat|t3|other:r0|Okay — ticket is thirty rupees.
+bus-conductor|flat|t3|other:r1|Forty rupees from here.
+bus-conductor|flat|t3|other:r2|Student pass or full ticket?
+bus-conductor|flat|t4|user|Full ticket. Here is fifty rupees.
+bus-conductor|flat|t5|other:r0|No change — exact amount only.
+bus-conductor|flat|t5|other:r1|Take your ticket — keep till you get down.
+bus-conductor|flat|t5|other:r2|Ten rupees change — take it.
+bus-conductor|flat|t6|user|Please tell me when my stop comes.
+bus-conductor|flat|t7|other:r0|I will call Banashankari — don’t worry.
+bus-conductor|flat|t7|other:r1|Two more stops — then yours.
+bus-conductor|flat|t8|user|This is my stop — I am getting down.
+bus-conductor|flat|t9|other:r0|Okay — get down carefully.
+bus-conductor|flat|t9|other:r1|Move fast — bus is starting.
+medical-dolo|flat|t0|user|Anna, do you have Dolo?
+medical-dolo|flat|t1|other:r0|Yes, we have.
+medical-dolo|flat|t1|other:r1|Which one — 650 or 500?
+medical-dolo|flat|t1|other:r2|Out of stock today.
+medical-dolo|flat|t2|user|Give me one strip.
+medical-dolo|flat|t3|other:r0|How many do you want?
+medical-dolo|flat|t3|other:r1|Only one?
+medical-dolo|flat|t4|user|One is enough.
+medical-dolo|flat|t5|other:r0|Twenty rupees.
+medical-dolo|flat|t5|other:r1|Thirty rupees.
+medical-dolo|flat|t6|user|Here, take the money.
+medical-dolo|flat|t7|other:r0|Okay, take this.
+medical-dolo|flat|t7|other:r1|Thank you, come again.
+pg-room-hunt|flat|t0|user|Anna, is there a PG room free near here?
+pg-room-hunt|flat|t1|other:r0|Yes, one room is free.
+pg-room-hunt|flat|t1|other:r1|Single or sharing?
+pg-room-hunt|flat|t1|other:r2|No vacancy now.
+pg-room-hunt|flat|t2|user|I need a single room. Is food included?
+pg-room-hunt|flat|t3|other:r0|Food yes — veg only.
+pg-room-hunt|flat|t3|other:r1|No food — kitchen you can use.
+pg-room-hunt|flat|t3|other:r2|Only sharing has food.
+pg-room-hunt|flat|t4|user|How much is the rent per month?
+pg-room-hunt|flat|t5|other:r0|Eight thousand per month.
+pg-room-hunt|flat|t5|other:r1|Ten thousand — deposit extra.
+pg-room-hunt|flat|t5|other:r2|Six plus maintenance.
+pg-room-hunt|flat|t6|user|Can I see the room?
+pg-room-hunt|flat|t7|other:r0|Come, I will show you.
+pg-room-hunt|flat|t7|other:r1|Evening only — people are inside.
+pg-room-hunt|flat|t8|user|Okay, I will take it. When can I shift?
+pg-room-hunt|flat|t9|other:r0|Tomorrow is fine.
+pg-room-hunt|flat|t9|other:r1|Pay advance — then keys.
+kirana-store|flat|t0|user|Anna, do you have Sona Masoori rice?
+kirana-store|flat|t1|other:r0|Yes, we have.
+kirana-store|flat|t1|other:r1|Which bag — 5 kg or 10 kg?
+kirana-store|flat|t1|other:r2|Finished today — come tomorrow.
+kirana-store|flat|t2|user|Give me one 5 kg bag.
+kirana-store|flat|t3|other:r0|Anything else?
+kirana-store|flat|t3|other:r1|Only this?
+kirana-store|flat|t4|user|One litre Fortune oil also.
+kirana-store|flat|t5|other:r0|This bottle or smaller pouch?
+kirana-store|flat|t5|other:r1|Sunflower only today.
+kirana-store|flat|t6|user|This pouch is fine. What is the total?
+kirana-store|flat|t7|other:r0|Four hundred fifty rupees.
+kirana-store|flat|t7|other:r1|Five hundred rupees.
+kirana-store|flat|t8|user|I will pay by UPI.
+kirana-store|flat|t9|other:r0|Scan here.
+kirana-store|flat|t9|other:r1|Cash only today — ATM is there.
+kirana-store|flat|t10|user|Paid. Thank you, anna.
+kirana-store|flat|t11|other:r0|Okay, come again.

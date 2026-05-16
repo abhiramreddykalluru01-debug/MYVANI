@@ -45,11 +45,13 @@ export function ExpandablePhraseCard({
   phrase,
   isExpanded,
   isFavorited,
+  prefetchRank = null,
   onToggle,
 }: {
   phrase: PhraseLite;
   isExpanded: boolean;
   isFavorited: boolean;
+  prefetchRank?: number | null;
   onToggle: () => void;
 }) {
   const [state, setState] = useState<FetchState>({ status: "idle" });
@@ -57,36 +59,66 @@ export function ExpandablePhraseCard({
   const [favPending, startFavTransition] = useTransition();
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fetchedRef = useRef(false);
+  const recentMarkedRef = useRef(false);
+
+  // New phrase row — reset fetch state (list keys by id but this guards HMR / reorder).
+  useEffect(() => {
+    fetchedRef.current = false;
+    recentMarkedRef.current = false;
+    setState({ status: "idle" });
+  }, [phrase.id]);
+
+  // List payload only knows about *phrase* audio_url. Many rows have no main
+  // line TTS but *replies* still have audio — treat that as "has audio" once
+  // the detail fetch returns so we do not flash misleading "Audio soon".
+  const detailHasAnyAudio =
+    state.status === "ready" &&
+    (Boolean(state.data.audio_url) ||
+      state.data.replies.some((r) => r.audio_url));
+  const effectiveHasAudio = phrase.has_audio || detailHasAnyAudio;
 
   // Sync optimistic state with server-provided initial value when prop changes.
   useEffect(() => {
     setFavOptimistic(isFavorited);
   }, [isFavorited]);
 
-  // Lazy-fetch phrase data the first time the card expands.
+  // Fetch phrase data either on first expand, or via limited staggered prefetch.
   useEffect(() => {
-    if (!isExpanded || fetchedRef.current) return;
-    fetchedRef.current = true;
-    setState({ status: "loading" });
+    if (fetchedRef.current) return;
+    const shouldPrefetch = typeof prefetchRank === "number" && prefetchRank >= 0;
+    if (!isExpanded && !shouldPrefetch) return;
 
-    fetch(`/api/phrases/${phrase.id}`)
-      .then((r) => r.json())
-      .then((data: FullPhrase | { error: string }) => {
-        if ("error" in data) {
-          setState({ status: "error" });
-          return;
-        }
-        setState({ status: "ready", data });
-        setFavOptimistic(data.is_favorited);
+    const delayMs = shouldPrefetch ? Math.min(prefetchRank * 40, 480) : 0;
+    const timer = window.setTimeout(() => {
+      if (fetchedRef.current) return;
+      fetchedRef.current = true;
+      setState({ status: "loading" });
 
-        if (data.is_authenticated) {
-          const fd = new FormData();
-          fd.append("phrase_id", phrase.id);
-          void markPhraseRecent(fd);
-        }
-      })
-      .catch(() => setState({ status: "error" }));
-  }, [isExpanded, phrase.id]);
+      fetch(`/api/phrases/${phrase.id}`)
+        .then((r) => r.json())
+        .then((data: FullPhrase | { error: string }) => {
+          if ("error" in data) {
+            setState({ status: "error" });
+            return;
+          }
+          setState({ status: "ready", data });
+          setFavOptimistic(data.is_favorited);
+
+        })
+        .catch(() => setState({ status: "error" }));
+    }, delayMs);
+
+    return () => window.clearTimeout(timer);
+  }, [isExpanded, phrase.id, prefetchRank]);
+
+  useEffect(() => {
+    if (!isExpanded || recentMarkedRef.current) return;
+    if (state.status !== "ready" || !state.data.is_authenticated) return;
+    recentMarkedRef.current = true;
+    const fd = new FormData();
+    fd.append("phrase_id", phrase.id);
+    void markPhraseRecent(fd);
+  }, [isExpanded, phrase.id, state]);
 
   function handleFavorite(e: React.MouseEvent) {
     e.stopPropagation();
@@ -135,7 +167,7 @@ export function ExpandablePhraseCard({
             {favOptimistic ? (
               <span className="text-xs text-black">★</span>
             ) : null}
-            {!phrase.has_audio ? (
+            {!effectiveHasAudio ? (
               <span className="rounded-full border border-black bg-[#F5F5F5] px-2 py-0.5 text-[10px] font-medium text-[#555555]">
                 Audio soon
               </span>
@@ -145,6 +177,23 @@ export function ExpandablePhraseCard({
         <p className="mt-1 text-4xl font-semibold leading-tight text-black break-words">
           {phrase.phonetic_text}
         </p>
+        {!isExpanded ? (
+          <div className="mt-3 flex items-center gap-2">
+            <p className="text-xs font-medium text-[#888888]">
+              Tap for replies
+            </p>
+            {effectiveHasAudio ? (
+              <span
+                className="flex items-center gap-1 rounded-full border border-[#E5E5E5] bg-[#FAFAFA] px-2 py-0.5 text-[10px] font-medium text-[#555555]"
+                aria-label="Audio available"
+                title="Audio available"
+              >
+                <SpeakerIcon />
+                Audio
+              </span>
+            ) : null}
+          </div>
+        ) : null}
       </div>
 
       {/* Expandable section — uses grid-rows trick for smooth height animation */}
@@ -218,6 +267,12 @@ function ExpandedContent({
               Slower
             </button>
           </>
+        ) : data.replies.some((r) => r.audio_url) ? (
+          <p className="rounded-lg border border-[#E5E5E5] bg-[#FAFAFA] px-3 py-2 text-[11px] text-[#555555]">
+            Main line has no audio — use{" "}
+            <span className="font-semibold text-black">Play</span> on a reply
+            below.
+          </p>
         ) : (
           <span className="rounded-lg border border-black bg-[#F5F5F5] px-3 py-1.5 text-[11px] font-medium text-[#555555]">
             Audio soon
@@ -295,6 +350,20 @@ function PlayIcon() {
   return (
     <svg width="11" height="11" viewBox="0 0 13 13" fill="currentColor">
       <path d="M2.5 1.5l9 5-9 5V1.5z" />
+    </svg>
+  );
+}
+
+function SpeakerIcon() {
+  return (
+    <svg
+      width="10"
+      height="10"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden
+    >
+      <path d="M3 10v4h4l5 4V6L7 10H3zm13.5 2a4.5 4.5 0 00-2.5-4.03v8.05A4.5 4.5 0 0016.5 12zM14 3.23v2.06a7 7 0 010 13.42v2.06a9 9 0 000-17.54z" />
     </svg>
   );
 }
